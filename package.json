@@ -195,7 +195,7 @@
     "prebuild-server": "mkdirp build",
     "build-server": "npm run -s env -- webpack --display-error-details --config webpack.config.node.js",
     "build-client": "npm run -s env -- webpack --display-error-details --config webpack.config.js",
-    "build-client-if-prod": "node -e \"process.env.CALYPSO_ENV === 'production' && process.exit(1)\" || npm run -s build-client",
+    "build-client-if-prod": "node -e \"process.env.CALYPSO_ENV === 'production' && process.exit(1)\" || ( npm run build-client && npm run minify )",
     "clean": "npm run -s clean:build && npm run -s clean:devdocs && npm run -s clean:public",
     "clean:build": "npm run -s rm -- build && npm run -s rm -- server/bundler .json && npm run -s rm -- .babel-cache",
     "clean:devdocs": "npm run -s rm -- server/devdocs/search-index.js && npm run -s rm -- server/devdocs/proptypes-index.json && npm run -s rm -- server/devdocs/components-usage-stats.json",
@@ -213,6 +213,7 @@
     "lint:css": "stylelint \"client/**/*.scss\" --syntax scss",
     "lint:js": "npm run -s install-if-deps-outdated && eslint-eslines .",
     "lint:mixedindent": "mixedindentlint --ignore-comments \"client/**/*.scss\" \"assets/**/*.scss\" \"**/*.js\" \"**/*.jsx\" \"!build/**\" \"!node_modules/**\" \"!public/**\" \"!client/config/index.js\"",
+    "minify": "./bin/minify",
     "precommit": "npm run -s install-if-no-packages && node bin/pre-commit-hook.js",
     "prepush": "npm run -s install-if-no-packages && node bin/pre-push-hook.js",
     "rm": "node bin/rm.js",
@@ -277,6 +278,7 @@
     "socket.io": "1.4.5",
     "stylelint": "6.9.0",
     "supertest": "2.0.0",
+    "uglify-js": "2.6.4",
     "webpack-bundle-analyzer": "2.8.2"
   },
   "optionalDependencies": {

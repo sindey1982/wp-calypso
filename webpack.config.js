@@ -20,6 +20,7 @@ const AssetsPlugin = require( 'assets-webpack-plugin' );
  */
 const cacheIdentifier = require( './server/bundler/babel/babel-loader-cache-identifier' );
 const config = require( './server/config' );
+const UseMinifiedFiles = require( './server/bundler/webpack-plugins/use-minified-files' );
 
 /**
  * Internal variables
@@ -70,7 +71,7 @@ const jsLoader = isWindows ? babelLoader : 'happypack/loader';
 const webpackConfig = {
 	bail: calypsoEnv !== 'development',
 	entry: {},
-	devtool: '#eval',
+	devtool: 'false',
 	output: {
 		path: path.join( __dirname, 'public' ),
 		publicPath: '/calypso/',
@@ -165,6 +166,7 @@ const webpackConfig = {
 			filename: 'assets.json',
 			path: path.join( __dirname, 'server', 'bundler' )
 		} ),
+
 	] ),
 	externals: [ 'electron' ]
 };
@@ -203,7 +205,7 @@ if ( calypsoEnv === 'desktop' ) {
 	webpackConfig.externals.push( 'jquery' );
 }
 
-if ( bundleEnv === 'development' ) {
+if ( calypsoEnv === 'development' ) {
 	// we should not use chunkhash in development: https://github.com/webpack/webpack-dev-server/issues/377#issuecomment-241258405
 	webpackConfig.output.filename = '[name].js';
 	webpackConfig.output.chunkFilename = '[name].js';
@@ -227,6 +229,7 @@ if ( bundleEnv === 'development' ) {
 		} );
 	}
 } else {
+	webpackConfig.plugins.push( new UseMinifiedFiles() );
 	webpackConfig.entry.build = path.join( __dirname, 'client', 'boot', 'app' );
 	webpackConfig.devtool = false;
 }
@@ -245,13 +248,8 @@ if ( process.env.DASHBOARD ) {
 	webpackConfig.plugins.unshift( new DashboardPlugin() );
 }
 
-if ( process.env.WEBPACK_OUTPUT_JSON || process.env.NODE_ENV === 'production' ) {
-	let sourceMap = false;
-	if ( process.env.WEBPACK_OUTPUT_JSON ) {
-		webpackConfig.devtool = 'cheap-module-source-map';
-		sourceMap = true;
-	}
-
+if ( process.env.WEBPACK_OUTPUT_JSON ) {
+	webpackConfig.devtool = 'cheap-module-source-map';
 	webpackConfig.plugins.push( new webpack.optimize.UglifyJsPlugin( {
 		minimize: true,
 		compress: {
@@ -267,7 +265,7 @@ if ( process.env.WEBPACK_OUTPUT_JSON || process.env.NODE_ENV === 'production' ) 
 			negate_iife: false,
 			screw_ie8: true
 		},
-		sourceMap
+		sourceMap: true
 	} ) );
 }
 
