@@ -33,6 +33,7 @@ class ReviewsList extends Component {
 		currentStatus: PropTypes.string,
 		currentSearch: PropTypes.string,
 		currentPage: PropTypes.number,
+		currentQuery: PropTypes.object,
 		reviews: PropTypes.array,
 		reviewsLoading: PropTypes.bool,
 		reviewsLoaded: PropTypes.bool,
@@ -87,6 +88,11 @@ class ReviewsList extends Component {
 		this.props.fetchReviews( newProps.siteId, query );
 	}
 
+	refetchQuery = () => {
+		const { currentQuery, siteId } = this.props;
+		this.props.fetchReviews( siteId, currentQuery );
+	}
+
 	renderPlaceholders = () => {
 		return range( 5 ).map( ( i ) => {
 			return (
@@ -131,6 +137,7 @@ class ReviewsList extends Component {
 				siteId={ siteId }
 				review={ review }
 				currentStatus={ this.props.currentStatus }
+				refetchQuery={ this.refetchQuery }
 			/>
 		);
 	}
@@ -210,6 +217,7 @@ export default connect(
 			currentPage,
 			currentSearch,
 			currentStatus,
+			currentQuery: query,
 			reviews,
 			reviewsLoading,
 			reviewsLoaded,

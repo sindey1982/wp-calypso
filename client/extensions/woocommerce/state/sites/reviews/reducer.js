@@ -7,6 +7,10 @@ import { keyBy, omit } from 'lodash';
  * Internal dependencies
  */
 import { combineReducers } from 'state/utils';
+import {
+	COMMENTS_CHANGE_STATUS,
+	//COMMENTS_DELETE,
+} from 'state/action-types';
 import { getSerializedReviewsQuery } from './utils';
 import {
 	WOOCOMMERCE_REVIEWS_RECEIVE,
@@ -46,6 +50,18 @@ export function items( state = {}, action ) {
 	if ( WOOCOMMERCE_REVIEWS_RECEIVE === action.type && action.reviews ) {
 		const reviews = keyBy( action.reviews, 'id' );
 		return Object.assign( {}, state, reviews );
+	}
+
+	if ( COMMENTS_CHANGE_STATUS === action.type && action.status ) {
+		const status = 'unapproved' === action.status ? 'pending' : action.status;
+		const itemToUpdate = {
+			...state[ action.commentId ],
+			status,
+		};
+		return {
+			...state,
+			[ action.commentId ]: itemToUpdate,
+		};
 	}
 
 	return state;

@@ -36,6 +36,7 @@ class ReviewCard extends Component {
 			rating: PropTypes.number,
 		} ).isRequired,
 		currentStatus: PropTypes.string.isRequired,
+		refetchQuery: PropTypes.func.isRequired,
 	};
 
 	state = {
@@ -44,6 +45,20 @@ class ReviewCard extends Component {
 
 	toggleExpanded = () => {
 		this.setState( ( { isExpanded } ) => ( { isExpanded: ! isExpanded } ) );
+	}
+
+	onStatusUpdate = ( newStatus ) => {
+		const { review } = this.props;
+		// Refreshes the review list if dealing with trash and spam.
+		// otherwise pending/approved reviews stay in their current lists.
+		// This matches the behavior of comments management.
+		if (
+			'trash' === review.status || 'spam' === review.status ||
+			'trash' === newStatus || 'spam' === newStatus
+		) {
+			this.props.refetchQuery();
+		}
+		this.toggleExpanded();
 	}
 
 	renderToggle() {
@@ -70,10 +85,15 @@ class ReviewCard extends Component {
 	}
 
 	renderActionsBar() {
-		const { review, currentStatus } = this.props;
+		const { review, currentStatus, siteId } = this.props;
 		return (
 			<div className={ classNames( 'reviews__header' ) } >
-				<ReviewActionsBar review={ review } currentStatus={ currentStatus } />
+				<ReviewActionsBar
+					siteId={ siteId }
+					review={ review }
+					currentStatus={ currentStatus }
+					onStatusUpdate={ this.onStatusUpdate }
+				/>
 				{ this.renderToggle() }
 			</div>
 		);
